@@ -1,0 +1,3 @@
+shirt,3000, M
+pants,5000, L
+skirt,3000,s
