@@ -50,7 +50,7 @@ public:
     } 
 };
 
-class Clothing : public Product {
+class Clothing : public Product { //상속 : Clothing 클래스가 Product 클래스에게 상속받음, 옷 상품 외에도 가능
 public:
     string size;
     Clothing(string name, int price, string size) : Product(name, price, size) {
@@ -62,7 +62,7 @@ public:
     }
 };
 
-template <typename T>
+template <typename T> //장바구니에 담을 수 있도록 일반화된 코드 작성 위해 템플릿 사용
 class ShoppingCart {
 public:
     vector<T*> products;
@@ -77,8 +77,9 @@ public:
             totalPrice += products[i]->price;
         }
         return totalPrice;
-    }
+    } 
 };
+//ShoppingCart<Product>로 인스턴스화하면 Product 타입의 제품들을 담는 장바구니가 생성되고, ShoppingCart<Book>으로 인스턴스화하면 Book 타입의 제품들을 담는 장바구니가 생성
 
 class ProductManagement {
 public:
