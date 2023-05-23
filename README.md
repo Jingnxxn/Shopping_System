@@ -79,7 +79,8 @@ public:
         return totalPrice;
     } 
 };
-//ShoppingCart<Product>로 인스턴스화하면 Product 타입의 제품들을 담는 장바구니가 생성되고, ShoppingCart<Book>으로 인스턴스화하면 Book 타입의 제품들을 담는 장바구니가 생성
+/*ShoppingCart<Product>로 인스턴스화하면 Product 타입의 제품들을 담는 장바구니가 생성되고,
+ShoppingCart<Book>으로 인스턴스화하면 Book 타입의 제품들을 담는 장바구니가 생성*/
 
 class ProductManagement {
 public:
