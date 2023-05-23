@@ -21,8 +21,8 @@
 ```cpp
 #include <iostream>
 #include <string>
-#include <vector>
-#include <algorithm>
+#include <vector> //컨테이너 클래스 정의(추가, 삭제, 검색 등 지원)
+#include <algorithm> //STL의 일부분, 수정과 검색 함수에 쓰임
 #include <fstream>
 #include <locale>
 
@@ -608,3 +608,7 @@ int main() {
     }
 }
 ```
+-------
+## 4. 실행 영상
+-------
+> 유튜브링크 : <https://www.youtube.com/watch?v=jZDLbWjEDq4>
