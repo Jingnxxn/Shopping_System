@@ -64,7 +64,7 @@ public:
 
 template <typename T> //장바구니에 담을 수 있도록 일반화된 코드 작성 위해 템플릿 사용
 class ShoppingCart {
-public:
+public:            //ShoppingCart 클래스는 vector<T*> products 멤버 변수를 사용하여 제품들을 저장
     vector<T*> products;
 
     void addProduct(T* product) {
