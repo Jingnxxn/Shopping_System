@@ -15,3 +15,594 @@
 > C++의 STL은 템플릿 기반의 라이브러리이다. 이는 다양한 데이터 구조, 알고리즘을 제공한다. STL은 컨테이너, 반복자, 알고리즘, 함수 객체, 어댑터 등의 주요 구성 요소로 이루어진다. 이는 효율성과 유지 보수성을 향상시킨다. 
 + 파일 입출력
 > C++의 파일 입출력 기능은 파일에서 데이터를 읽거나 데이터를 파일에 쓰는 기능을 제공한다. 이를 통해 프로그램은 외부 파일과 데이터를 주고받아 정보를 활용하고 저장할 수 있다. 파일 열기와 닫기는 데이터 처리와 관리에 필수적인 단계이다.
+---
+## 3. 코드 분석
+---
+```ruby
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <fstream>
+#include <locale>
+
+using namespace std;
+
+class Product {
+public:
+    string name;
+    int price;
+    string size;
+
+    Product(string name, int price, string size) {
+        this->name = name;
+        this->price = price;
+        this->size = size;
+    }
+
+    virtual void printInfo() {
+        cout << "상품명: " << name << ", 가격: " << price << "원, 사이즈: " << size  << endl;
+    }
+     void modifyProduct(string newName, int newPrice, string newSize) {
+        name = newName;
+        price = newPrice;
+        size = newSize;
+    } 
+};
+
+class Clothing : public Product {
+public:
+    string size;
+    Clothing(string name, int price, string size) : Product(name, price, size) {
+        this->size = size;
+    }
+
+    void printInfo() {
+        cout << "상품명: " << name << ", 가격: " << price << "원, 사이즈: " << size << endl;
+    }
+};
+
+template <typename T>
+class ShoppingCart {
+public:
+    vector<T*> products;
+
+    void addProduct(T* product) {
+        products.push_back(product);
+    }
+
+    int calculateTotalPrice() {
+        int totalPrice = 0;
+        for (int i = 0; i < products.size(); i++) {
+            totalPrice += products[i]->price;
+        }
+        return totalPrice;
+    }
+};
+
+class ProductManagement {
+public:
+    vector<Product*> productDatabase;
+    void loadProductData() {
+        ifstream file("product_data.txt");
+        if (!file) {
+            cout << "상품 데이터 파일을 찾을 수 없습니다." << endl;
+            return;
+        }
+
+        string line;
+        while (getline(file, line)) {
+            string name;
+            int price;
+            string size;
+
+            size_t commaPos1 = line.find(',');
+            if (commaPos1 != string::npos) {
+                name = line.substr(0, commaPos1);
+
+                size_t commaPos2 = line.find(',', commaPos1 + 1);
+                if (commaPos2 != string::npos) {
+                    string priceStr = line.substr(commaPos1 + 1, commaPos2 - commaPos1 - 1);
+                    price = stoi(priceStr);
+                    size = line.substr(commaPos2 + 1);
+                }
+            }
+
+            Clothing* clothing = new Clothing(name, price, size);
+            productDatabase.push_back(clothing);
+        }
+
+        file.close();
+    }
+    
+    
+    void modifyProduct(int productIndex, string newName, int newPrice, string newSize) {
+        if (productIndex < 1 || productIndex > productDatabase.size()) {
+            cout << "잘못된 상품 번호입니다. 다시 선택하세요." << endl;
+            return;
+        }
+        Product* product = productDatabase[productIndex - 1];
+       cout << "상품을 수정하였습니다." << endl;
+    }
+    Product* searchProduct(string productName) {
+        for (int i = 0; i < productDatabase.size(); i++) {
+            if (productDatabase[i]->name == productName) {
+                return productDatabase[i];
+            }
+        }
+        return nullptr;
+    }
+    
+
+    void saveProductData() {
+        ofstream file("product_data.txt");
+        if (!file) {
+            cout << "상품 데이터 파일을 생성할 수 없습니다." << endl;
+            return;
+        }
+
+        for (int i = 0; i < productDatabase.size(); i++) {
+            Clothing* clothing = dynamic_cast<Clothing*>(productDatabase[i]);
+            if (clothing) {
+                file << clothing->name << "," << clothing->price << "," << clothing->size << endl;
+            }
+        }
+
+        file.close();
+    }
+
+    void addProduct(Product* product) {
+        productDatabase.push_back(product);
+    }
+
+    void removeProduct(int productIndex) {
+        if (productIndex < 1 || productIndex > productDatabase.size()) {
+            cout << "잘못된 상품 번호입니다. 다시 선택하세요." << endl;
+            return;
+        }
+
+        productDatabase.erase(productDatabase.begin() + productIndex - 1);
+        cout << "상품을 삭제하였습니다." << endl;
+    }
+
+    
+
+    void printProductList() {
+        cout << "상품 목록:" << endl;
+        for (int i = 0; i < productDatabase.size(); i++) {
+            cout << i + 1 << ". ";
+            productDatabase[i]->printInfo();
+        }
+    }
+};
+
+class Customer {
+public:
+    string name;
+    string address;
+
+    Customer(string name, string address) {
+        this->name = name;
+        this->address = address;
+    }
+
+    void printInfo() {
+        cout << "이름: " << name << ", 주소: " << address << endl;
+    }
+    void modifyCustomer(string newName, string newAddress) {
+        name = newName;
+        address = newAddress;
+    }
+};
+
+class CustomerManagement {
+private:
+    vector<Customer*> customerDatabase;
+
+public:
+    void loadCustomerData() {
+        ifstream file("customer_data.txt");
+        if (!file) {
+            cout << "고객 데이터 파일을 찾을 수 없습니다." << endl;
+            return;
+        }
+
+        string line;
+        while (getline(file, line)) {
+            string name;
+            string address;
+
+            size_t commaPos = line.find(',');
+            if (commaPos != string::npos) {
+                name = line.substr(0, commaPos);
+                address = line.substr(commaPos + 1);
+            }
+
+            Customer* customer = new Customer(name, address);
+            customerDatabase.push_back(customer);
+        }
+
+        file.close();
+    }
+    void modifyCustomer(int customerIndex, string newName, string newAddress) {
+        if (customerIndex < 1 || customerIndex > customerDatabase.size()) {
+            cout << "잘못된 고객 번호입니다. 다시 선택하세요." << endl;
+            return;
+        }
+
+        Customer* customer = customerDatabase[customerIndex - 1];
+        customer->modifyCustomer(newName, newAddress);
+        cout << "고객을 수정하였습니다." << endl;
+    }
+
+    Customer* searchCustomer(string customerName) {
+        for (int i = 0; i < customerDatabase.size(); i++) {
+            if (customerDatabase[i]->name == customerName) {
+                return customerDatabase[i];
+            }
+        }
+        return nullptr;
+    }
+
+    void saveCustomerData() {
+        ofstream file("customer_data.txt");
+        if (!file) {
+            cout << "고객 데이터 파일을 생성할 수 없습니다." << endl;
+            return;
+        }
+
+        for (int i = 0; i < customerDatabase.size(); i++) {
+            file << customerDatabase[i]->name << "," << customerDatabase[i]->address << endl;
+        }
+
+        file.close();
+    }
+
+    void addCustomer(Customer* customer) {
+        customerDatabase.push_back(customer);
+    }
+
+    void removeCustomer(int customerIndex) {
+        if (customerIndex < 1 || customerIndex > customerDatabase.size()) {
+            cout << "잘못된 고객 번호입니다. 다시 선택하세요." << endl;
+            return;
+        }
+
+        customerDatabase.erase(customerDatabase.begin() + customerIndex - 1);
+        cout << "고객을 삭제하였습니다." << endl;
+    }
+
+    
+
+    void printCustomerList() {
+        cout << "고객 목록:" << endl;
+        for (int i = 0; i < customerDatabase.size(); i++) {
+            cout << i + 1 << ". ";
+            customerDatabase[i]->printInfo();
+        }
+    }
+};
+
+class Order {
+public:
+    string orderNumber;
+    Customer* customer;
+    vector<Product*> products;
+
+    Order(string orderNumber, Customer* customer) {
+        this->orderNumber = orderNumber;
+        this->customer = customer;
+    }
+
+    void addProduct(Product* product) {
+        products.push_back(product);
+    }
+
+    void removeProduct(int productIndex) {
+        if (productIndex < 1 || productIndex > products.size()) {
+            cout << "잘못된 상품 번호입니다. 다시 선택하세요." << endl;
+            return;
+        }
+
+        products.erase(products.begin() + productIndex - 1);
+        cout << "상품을 삭제하였습니다." << endl;
+    }
+
+    void printOrderInfo() {
+        cout << "주문번호: " << orderNumber << endl;
+        cout << "고객 정보: ";
+        customer->printInfo();
+        cout << "주문 상품 목록:" << endl;
+        for (int i = 0; i < products.size(); i++) {
+            cout << i + 1 << ". ";
+            products[i]->printInfo();
+        }
+        cout << "총 주문 가격: " << calculateTotalPrice() << "원" << endl;
+    }
+
+    int calculateTotalPrice() {
+        int totalPrice = 0;
+        for (int i = 0; i < products.size(); i++) {
+            totalPrice += products[i]->price;
+        }
+        return totalPrice;
+    }
+};
+
+class OrderManagement {
+private:
+    vector<Order*> orderDatabase;
+
+public:
+    void addOrder(Order* order) {
+        orderDatabase.push_back(order);
+    }
+
+    void removeOrder(int orderIndex) {
+        if (orderIndex < 1 || orderIndex > orderDatabase.size()) {
+            cout << "잘못된 주문 번호입니다. 다시 선택하세요." << endl;
+            return;
+        }
+
+        orderDatabase.erase(orderDatabase.begin() + orderIndex - 1);
+        cout << "주문을 삭제하였습니다." << endl;
+    }
+
+    Order* searchOrder(string orderNumber) {
+        for (int i = 0; i < orderDatabase.size(); i++) {
+            if (orderDatabase[i]->orderNumber == orderNumber) {
+                return orderDatabase[i];
+            }
+        }
+        return nullptr;
+    }
+
+    void printOrderList() {
+        cout << "주문 목록:" << endl;
+        for (int i = 0; i < orderDatabase.size(); i++) {
+            cout << i + 1 << ". ";
+            orderDatabase[i]->printOrderInfo();
+        }
+    }
+};
+
+int main() {
+    ProductManagement productManagement;
+    CustomerManagement customerManagement;
+    OrderManagement orderManagement;
+
+    productManagement.loadProductData();
+    customerManagement.loadCustomerData();
+
+    int choice;
+    while (true) {
+        cout << "=== 메뉴 ===" << endl;
+        cout << "1. 상품 등록" << endl;
+        cout << "2. 상품 삭제" << endl;
+        cout << "3. 상품 목록 출력" << endl;
+        cout << "4. 고객 등록" << endl;
+        cout << "5. 고객 삭제" << endl;
+        cout << "6. 고객 목록 출력" << endl;
+        cout << "7. 주문 생성" << endl;
+        cout << "8. 주문 삭제" << endl;
+        cout << "9. 주문 목록 출력" << endl;
+        cout << "10. 상품 수정" << endl;
+        cout << "11. 상품 검색" << endl;
+        cout << "12. 고객 수정" << endl;
+        cout << "13. 고객 검색" << endl;
+        cout << "0. 종료" << endl;
+        cout << "메뉴를 선택하세요: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            string name;
+            int price;
+            string size;
+
+            cout << "상품 이름: ";
+            cin.ignore();
+            getline(cin, name);
+
+            cout << "상품 가격: ";
+            cin >> price;
+
+            cout << "옷 사이즈: ";
+            cin.ignore();
+            getline(cin, size);
+
+            Clothing* clothing = new Clothing(name, price, size);
+            productManagement.addProduct(clothing);
+            productManagement.saveProductData();
+
+            cout << "상품이 등록되었습니다." << endl;
+            break;
+        }
+        case 2: {
+            int productIndex;
+            cout << "삭제할 상품 번호를 입력하세요: ";
+            cin >> productIndex;
+            productManagement.removeProduct(productIndex);
+            productManagement.saveProductData();
+            break;
+        }
+        case 3: {
+            productManagement.printProductList();
+            break;
+        }
+        case 4: {
+            string name;
+            string address;
+
+            cout << "고객 이름: ";
+            cin.ignore();
+            getline(cin, name);
+
+            cout << "고객 주소: ";
+            getline(cin, address);
+
+            Customer* customer = new Customer(name, address);
+            customerManagement.addCustomer(customer);
+            customerManagement.saveCustomerData();
+
+            cout << "고객이 등록되었습니다." << endl;
+            break;
+        }
+        case 5: {
+            int customerIndex;
+            cout << "삭제할 고객 번호를 입력하세요: ";
+            cin >> customerIndex;
+            customerManagement.removeCustomer(customerIndex);
+            customerManagement.saveCustomerData();
+            break;
+        }
+        case 6: {
+            customerManagement.printCustomerList();
+            break;
+        }
+        case 7: {
+            string orderNumber;
+            string customerName;
+
+            cout << "주문 번호: ";
+            cin.ignore();
+            getline(cin, orderNumber);
+
+            cout << "주문 고객 이름: ";
+            getline(cin, customerName);
+
+            Customer* customer = customerManagement.searchCustomer(customerName);
+            if (customer == nullptr) {
+                cout << "고객을 찾을 수 없습니다. 주문을 생성할 수 없습니다." << endl;
+                break;
+            }
+
+            Order* order = new Order(orderNumber, customer);
+
+            while (true) {
+                cout << "주문할 상품 번호를 선택하세요 (0: 주문 완료): ";
+                int productChoice;
+                cin >> productChoice;
+
+                if (productChoice == 0) {
+                    break;
+                }
+
+                productManagement.printProductList();
+
+                if (productChoice < 1 || productChoice > productManagement.productDatabase.size()) {
+                    cout << "잘못된 상품 번호입니다. 다시 선택하세요." << endl;
+                    continue;
+                }
+
+                Product* product = productManagement.productDatabase[productChoice - 1];
+                order->addProduct(product);
+            }
+
+            orderManagement.addOrder(order);
+
+            cout << "주문이 생성되었습니다." << endl;
+            break;
+        }
+
+        case 8: {
+            int orderIndex;
+            cout << "삭제할 주문 번호를 입력하세요: ";
+            cin >> orderIndex;
+            orderManagement.removeOrder(orderIndex);
+            break;
+        }
+        case 9: {
+            orderManagement.printOrderList();
+            break;
+        }
+        case 10: {
+            int productIndex;
+            cout << "수정할 상품 번호를 입력하세요: ";
+            cin >> productIndex;
+
+            string newName;
+            int newPrice;
+            string newSize;
+
+            cout << "새로운 상품 이름: ";
+            cin.ignore();
+            getline(cin, newName);
+
+            cout << "새로운 상품 가격: ";
+            cin >> newPrice;
+            
+            cout << "새로운 상품 사이즈: ";
+            cin.ignore();
+            getline(cin, newSize);
+
+            productManagement.modifyProduct(productIndex, newName, newPrice, newSize);
+            productManagement.saveProductData();
+            break;
+        }
+
+        case 11: {
+            string productName;
+            cout << "검색할 상품 이름을 입력하세요: ";
+            cin.ignore();
+            getline(cin, productName);
+            
+            Product* product = productManagement.searchProduct(productName);
+          if (product == nullptr) {
+              cout << "상품을 찾을 수 없습니다." << endl;
+          } else {
+              cout << "상품을 찾았습니다." << endl;
+              product->printInfo();
+          }
+          break;
+
+        }
+
+        case 12: {
+            int customerIndex;
+            cout << "수정할 고객 번호를 입력하세요: ";
+            cin >> customerIndex;
+
+            string newName;
+            string newAddress;
+
+            cout << "새로운 고객 이름: ";
+            cin.ignore();
+            getline(cin, newName);
+
+            cout << "새로운 고객 주소: ";
+            getline(cin, newAddress);
+
+            customerManagement.modifyCustomer(customerIndex, newName, newAddress);
+            customerManagement.saveCustomerData();
+            break;
+        }
+
+        case 13: {
+            string customerName;
+            cout << "검색할 고객 이름을 입력하세요: ";
+            cin.ignore();
+            getline(cin, customerName);
+
+            Customer* customer = customerManagement.searchCustomer(customerName);
+            if (customer != nullptr) {
+                cout << "검색 결과:" << endl;
+                customer->printInfo();
+            } else {
+                cout << "고객을 찾을 수 없습니다." << endl;
+            }
+            break;
+        }
+        
+        case 0: {
+            productManagement.saveProductData();
+            customerManagement.saveCustomerData();
+            cout << "프로그램을 종료합니다." << endl;
+            return 0;
+        }
+        default:
+            cout << "잘못된 메뉴 번호입니다. 다시 선택하세요." << endl;
+        }
+    }
+}
+```
