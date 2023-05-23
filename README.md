@@ -18,7 +18,7 @@
 ---
 ## 3. 코드 분석
 ---
-```ruby
+```cpp
 #include <iostream>
 #include <string>
 #include <vector>
