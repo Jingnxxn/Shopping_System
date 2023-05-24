@@ -617,7 +617,8 @@ int main() {
 -------
 ## 5. 실행 영상
 -------
-> 유튜브링크 : <https://www.youtube.com/watch?v=jZDLbWjEDq4>
+> 유튜브링크 : <https://www.youtube.com/watch?v=0TAUpRju0mU>
+>  <https://www.youtube.com/watch?v=jZDLbWjEDq4>
 
 -----
 ## 소감
